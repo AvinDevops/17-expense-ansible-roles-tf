@@ -1,0 +1,90 @@
+- name: disabiling nodejs
+  ansible.builtin.command: dnf module disable nodejs -y
+
+- name: enabiling nodejs v20
+  ansible.builtin.command: dnf module enable nodejs:20 -y
+
+- name: installing nodejs
+  ansible.builtin.dnf:
+    name: nodejs
+    state: installed
+
+- name: adding expense user
+  ansible.builtin.user:
+    name: expense
+    state: present
+
+# - name: create app directory
+#   ansible.builtin.file:
+#     path: /app
+#     state: directory
+
+# - name: download backend file
+#   ansible.builtin.get_url:
+#     url: https://expense-builds.s3.us-east-1.amazonaws.com/expense-backend-v2.zip
+#     dest: /tmp/backend.zip
+
+# - name: unzipping backend
+#   ansible.builtin.unarchive:
+#     src: /tmp/backend.zip
+#     dest: /app
+#     remote_src: yes
+
+- name: calling and running common app-pre-req
+  tags:
+  - deployment
+  ansible.builtin.import_role:
+    name: common
+    tasks_from: app-pre-req
+
+# - name: go to app dir
+#   ansible.builtin.command: cd /app
+
+- name: installing npm dependencies
+  tags:
+  - deployment
+  ansible.builtin.command: npm install
+  args:
+    chdir: /app
+
+- name: copying backend.service to remote
+  tags:
+  - deployment
+  ansible.builtin.template:
+    src: backend.service.j2
+    dest: /etc/systemd/system/backend.service
+  notify:
+  - start and enable backend service
+
+- name: installing mysql
+  ansible.builtin.dnf:
+    name: mysql
+    state: installed
+
+- name: install mysql python dependencies
+  ansible.builtin.pip:
+    name:
+    - PyMySQL
+    - cryptography
+    executable: pip3.9
+
+- name: loading mysql schema
+  community.mysql.mysql_db:
+    login_user: "{{login_user}}"
+    login_password: "{{mysql_root_passwd}}"
+    login_host: "{{login_host}}" 
+    state: import
+    name: all
+    target: /app/schema/backend.sql
+
+- name: daemon reload
+  ansible.builtin.systemd_service:
+    daemon_reload: true
+
+# - name: start and enable backend service
+#   tags:
+#   - deployment
+#   ansible.builtin.service:
+#     name: backend
+#     state: restarted
+#     enabled: true

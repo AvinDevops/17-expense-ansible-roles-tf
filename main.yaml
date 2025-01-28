@@ -1,0 +1,8 @@
+- name: configuring {{component}} server
+  hosts: all
+  connection: local
+  vars_files:
+  - "variables-{{ env }}"
+  become: yes
+  roles:
+  - "{{component}}"

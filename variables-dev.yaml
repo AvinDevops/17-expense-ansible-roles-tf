@@ -1,0 +1,3 @@
+login_host: db-dev.avinexpense.online
+login_user: root
+DB_HOST: db-dev.avinexpense.online
