@@ -2,3 +2,4 @@ login_host: db-prod.avinexpense.online
 login_user: root
 mysql_root_passwd: ExpenseApp1
 DB_HOST: db-prod.avinexpense.online
+BACKEND_API_URL: backend.app-prod.avinexpense.online
