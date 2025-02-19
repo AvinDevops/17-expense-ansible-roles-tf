@@ -40,12 +40,12 @@
 # - name: go to app dir
 #   ansible.builtin.command: cd /app
 
-- name: installing npm dependencies
-  tags:
-  - deployment
-  ansible.builtin.command: npm install
-  args:
-    chdir: /app
+# - name: installing npm dependencies
+#   tags:
+#   - deployment
+#   ansible.builtin.command: npm install
+#   args:
+#     chdir: /app
 
 - name: copying backend.service to remote
   tags:
